@@ -1,0 +1,7 @@
+// Window rules
+// Corresponds to Hyprland's rules.conf
+
+window-rule {
+    match app-id="copyq"
+    open-floating true
+}

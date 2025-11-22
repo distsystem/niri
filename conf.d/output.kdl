@@ -1,0 +1,7 @@
+// Monitor/output configuration
+// Corresponds to Hyprland's default.conf
+
+output "eDP-1" {
+    mode "2880x1800@120"
+    scale 1.5
+}

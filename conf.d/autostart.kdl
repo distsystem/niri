@@ -1,0 +1,26 @@
+// Autostart programs
+// Corresponds to Hyprland's autostart.conf (exec-once)
+
+// elephant
+spawn-at-startup "elephant"
+
+// GSK_RENDERER=cairo walker -t hypr --gapplication-service
+spawn-sh-at-startup "GSK_RENDERER=cairo walker -t hypr --gapplication-service"
+
+// QT_SCALE_FACTOR=0.7 dms run
+spawn-sh-at-startup "QT_SCALE_FACTOR=0.7 dms run"
+
+// Main autostart script (fcitx5 / wl-clip-persist / wp-autochange / copyq...)
+spawn-sh-at-startup "bash ~/.config/hypr/autostart.sh"
+
+// CPU monitor script (note: uses hyprctl notify, won't work in niri)
+spawn-sh-at-startup "bash ~/.config/hypr/scripts/hyprland-cpu-monitor.sh"
+
+// Restart input-leap
+spawn-sh-at-startup "bash ~/.config/hypr/scripts/restart-input-leap.sh"
+
+// QT_SCALE_FACTOR=1 USE_LAYER_SHELL=0 vicinae server
+spawn-sh-at-startup "QT_SCALE_FACTOR=1 USE_LAYER_SHELL=0 vicinae server"
+
+// localsend
+spawn-at-startup "localsend"

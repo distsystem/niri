@@ -1,0 +1,14 @@
+// Miscellaneous configuration
+// Corresponds to Hyprland's envs.conf and other misc settings
+
+// Screenshot save path
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+// Hotkey overlay at startup
+hotkey-overlay {
+    // Uncomment to skip at startup:
+    // skip-at-startup
+}
+
+// Prefer server-side decorations (like Hypr's window borders)
+prefer-no-csd

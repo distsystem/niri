@@ -1,0 +1,33 @@
+// Layout and appearance configuration
+// Corresponds to Hyprland's settings.conf (general, decoration, animations)
+
+layout {
+    // Hypr's gaps_out=15
+    gaps 15
+
+    // Default window width: half screen
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        width 3
+        active-color "#7fc8ff"
+        inactive-color "#505050"
+    }
+
+    border {
+        // No extra border (Hypr's border_size=1 is thin)
+        off
+    }
+
+    shadow {
+        // Uncomment to enable shadow
+        // on
+        softness 30
+        spread 5
+        offset x=0 y=5
+        color "#0007"
+    }
+
+    // Center focused column: "never" | "always" | "on-overflow"
+    center-focused-column "never"
+}

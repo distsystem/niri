@@ -1,0 +1,24 @@
+// ~/.config/niri/config.kdl
+// Main configuration entry point - loads modular configs via include
+// Structure inspired by Hyprland's custom.d/ layout
+
+// Miscellaneous settings (environment, cursor, screenshot-path, etc.)
+include "conf.d/misc.kdl"
+
+// Input devices (keyboard, touchpad)
+include "conf.d/input.kdl"
+
+// Monitor/output configuration
+include "conf.d/output.kdl"
+
+// Layout and appearance (gaps, focus-ring, shadow, animations)
+include "conf.d/layout.kdl"
+
+// Autostart programs (spawn-at-startup)
+include "conf.d/autostart.kdl"
+
+// Window rules
+include "conf.d/rules.kdl"
+
+// Key bindings (loaded last so they can override if needed)
+include "conf.d/binds.kdl"

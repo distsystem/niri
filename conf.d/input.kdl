@@ -1,0 +1,22 @@
+// Input device configuration
+// Corresponds to Hyprland's input section in settings.conf
+
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+
+        // Enable NumLock at startup
+        numlock
+    }
+
+    touchpad {
+        // tap-to-click and disable-while-typing
+        tap
+        dwt
+
+        // natural-scroll is disabled (Hypr: natural_scroll=false)
+        // natural-scroll
+    }
+}

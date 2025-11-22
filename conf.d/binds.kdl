@@ -1,0 +1,145 @@
+// Key bindings
+// Corresponds to Hyprland's 01-binds.conf
+
+binds {
+    // ===== App launchers =====
+    // SUPER+Return -> kitty (Hypr: $terminal)
+    Mod+Return { spawn "kitty"; }
+
+    // SUPER+E -> neovide
+    Mod+E { spawn "neovide"; }
+
+    // SUPER+V -> caelestia clipboard (Hypr: $clipboard)
+    Mod+V { spawn "caelestia" "clipboard"; }
+
+    // ALT+Space -> walker -t hypr (Hypr: $menu)
+    Alt+Space { spawn "walker" "-t" "hypr"; }
+
+    // SUPER+C -> browser (Hypr: gtk-launch google-chrome)
+    Mod+C { spawn "gtk-launch" "google-chrome"; }
+
+    // SUPER+CTRL+SHIFT+L -> lock screen (Hypr: hyprlock)
+    Mod+Ctrl+Shift+L { spawn "hyprlock"; }
+
+    // ===== Close / Exit =====
+    // SUPER+SHIFT+Q -> close window (Hypr: killactive)
+    Mod+Shift+Q { close-window; }
+
+    // SUPER+CTRL+SHIFT+Q -> quit niri (Hypr: exit)
+    Mod+Ctrl+Shift+Q { quit; }
+
+    // ===== Screenshot =====
+    // Print -> area screenshot + Satty (Hypr: $screenshot)
+    Print { spawn-sh "bash ~/.config/hypr/scripts/screenshot.sh"; }
+
+    // SUPER+SHIFT+S -> same screenshot script
+    Mod+Shift+S { spawn-sh "bash ~/.config/hypr/scripts/screenshot.sh"; }
+
+    // ===== Focus movement (HJKL, like hypr-scroller) =====
+    Mod+H { focus-column-left; }
+    Mod+L { focus-column-right; }
+    Mod+J { focus-window-down; }
+    Mod+K { focus-window-up; }
+
+    // Move window/column (Hypr: SHIFT+HJKL movewindow / scroller:movewindow)
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+L { move-column-right; }
+    Mod+Shift+J { move-window-down; }
+    Mod+Shift+K { move-window-up; }
+
+    // ===== Resize (like Hypr's resizeactive) =====
+    // SUPER+Left/Right -> adjust column width (-10% / +10%)
+    Mod+Left { set-column-width "-10%"; }
+    Mod+Right { set-column-width "+10%"; }
+
+    // SUPER+Up/Down -> adjust window height (-10% / +10%)
+    Mod+Up { set-window-height "-10%"; }
+    Mod+Down { set-window-height "+10%"; }
+
+    // ===== Monitor / Workspace (like Hypr) =====
+    // SUPER+[ / ] -> switch monitor
+    Mod+BracketLeft { focus-monitor-left; }
+    Mod+BracketRight { focus-monitor-right; }
+
+    // SUPER+SHIFT+[ / ] -> move column to prev/next monitor
+    Mod+Shift+BracketLeft { move-column-to-monitor-left; }
+    Mod+Shift+BracketRight { move-column-to-monitor-right; }
+
+    // SUPER+scroll up/down -> switch workspace (Hypr: mouse_up/down)
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp   cooldown-ms=150 { focus-workspace-up; }
+
+    // SUPER+Ctrl+scroll up/down -> move column to workspace
+    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+
+    // Number keys 1-9 switch workspace
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+
+    // SUPER+CTRL+number -> move column to workspace
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+
+    // ===== Floating / Fullscreen (like Hypr's F / O) =====
+    // SUPER+F -> toggle floating (Hypr: togglefloating)
+    Mod+F { toggle-window-floating; }
+
+    // SUPER+SHIFT+F -> fullscreen (Hypr: fullscreen,1)
+    Mod+Shift+F { fullscreen-window; }
+
+    // SUPER+Ctrl+F -> expand column to available width
+    Mod+Ctrl+F { expand-column-to-available-width; }
+
+    // ===== Volume / Brightness / Media keys =====
+    XF86AudioRaiseVolume allow-when-locked=true {
+        spawn "wpctl" "set-volume" "-l" "1" "@DEFAULT_AUDIO_SINK@" "5%+";
+    }
+    XF86AudioLowerVolume allow-when-locked=true {
+        spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-";
+    }
+    XF86AudioMute allow-when-locked=true {
+        spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle";
+    }
+    XF86AudioMicMute allow-when-locked=true {
+        spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle";
+    }
+
+    // Brightness (using qs msg brightness)
+    XF86MonBrightnessUp allow-when-locked=true {
+        spawn "qs" "msg" "brightness" "increment";
+    }
+    XF86MonBrightnessDown allow-when-locked=true {
+        spawn "qs" "msg" "brightness" "decrement";
+    }
+
+    // Media keys: playerctl
+    XF86AudioNext  { spawn "playerctl" "next"; }
+    XF86AudioPause { spawn "playerctl" "play-pause"; }
+    XF86AudioPlay  { spawn "playerctl" "play-pause"; }
+    XF86AudioPrev  { spawn "playerctl" "previous"; }
+
+    // ===== niri-specific: Overview / Hotkey panel =====
+    // SUPER+O -> Overview
+    Mod+O repeat=false { toggle-overview; }
+
+    // SUPER+Shift+Slash -> show Important Hotkeys
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    // SUPER+Escape -> toggle keyboard shortcuts inhibit (for remote desktop)
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+}
