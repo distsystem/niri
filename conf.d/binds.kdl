@@ -13,7 +13,7 @@ binds {
     Mod+V { spawn "caelestia" "clipboard"; }
 
     // ALT+Space -> walker -t hypr (Hypr: $menu)
-    Alt+Space { spawn "vicinate" "toggle"; }
+    Alt+space { spawn "vicinate" "toggle"; }
 
     // SUPER+C -> browser (Hypr: gtk-launch google-chrome)
     Mod+C { spawn "gtk-launch" "google-chrome"; }
@@ -41,9 +41,9 @@ binds {
     Mod+J { focus-window-down; }
     Mod+K { focus-window-up; }
 
-    // Column operations: consume/expel windows
-    Mod+Shift+H { consume-window-into-column; }
-    Mod+Shift+L { expel-window-from-column; }
+    // Column operations: consume/expel windows (direction-aware)
+    Mod+Shift+H { consume-or-expel-window-left; }
+    Mod+Shift+L { consume-or-expel-window-right; }
     Mod+Shift+J { move-window-down; }
     Mod+Shift+K { move-window-up; }
 

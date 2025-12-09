@@ -24,3 +24,6 @@ spawn-sh-at-startup "QT_SCALE_FACTOR=1 USE_LAYER_SHELL=0 vicinae server"
 
 // localsend
 spawn-at-startup "localsend"
+
+// Auto-adjust window width based on workspace window count
+spawn-sh-at-startup "~/.config/niri/scripts/niri-auto-width.sh"
