@@ -2,7 +2,10 @@
 // Main configuration entry point - loads modular configs via include
 // Structure inspired by Hyprland's custom.d/ layout
 
-// Miscellaneous settings (environment, cursor, screenshot-path, etc.)
+// Environment variables (cursor, input method, Qt/GTK settings)
+include "conf.d/env.kdl"
+
+// Miscellaneous settings (cursor, screenshot-path, etc.)
 include "conf.d/misc.kdl"
 
 // Input devices (keyboard, touchpad)

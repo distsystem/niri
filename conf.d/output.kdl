@@ -3,5 +3,10 @@
 
 output "eDP-1" {
     mode "2880x1800@120"
-    scale 1.5
+    scale 2
+}
+
+output "DP-1" {
+    // mode "2880x1800@120"
+    scale 2
 }

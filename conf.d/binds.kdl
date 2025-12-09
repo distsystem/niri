@@ -13,7 +13,7 @@ binds {
     Mod+V { spawn "caelestia" "clipboard"; }
 
     // ALT+Space -> walker -t hypr (Hypr: $menu)
-    Alt+Space { spawn "walker" "-t" "hypr"; }
+    Alt+Space { spawn "vicinate" "toggle"; }
 
     // SUPER+C -> browser (Hypr: gtk-launch google-chrome)
     Mod+C { spawn "gtk-launch" "google-chrome"; }
@@ -41,9 +41,9 @@ binds {
     Mod+J { focus-window-down; }
     Mod+K { focus-window-up; }
 
-    // Move window/column (Hypr: SHIFT+HJKL movewindow / scroller:movewindow)
-    Mod+Shift+H { move-column-left; }
-    Mod+Shift+L { move-column-right; }
+    // Column operations: consume/expel windows
+    Mod+Shift+H { consume-window-into-column; }
+    Mod+Shift+L { expel-window-from-column; }
     Mod+Shift+J { move-window-down; }
     Mod+Shift+K { move-window-up; }
 
@@ -142,4 +142,11 @@ binds {
 
     // SUPER+Escape -> toggle keyboard shortcuts inhibit (for remote desktop)
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    // ===== Workspace quick switch =====
+    Mod+Tab { focus-workspace-previous; }
+
+    // ===== Preset width/height cycling =====
+    Mod+X { switch-preset-column-width; }
+    Mod+Shift+X { switch-preset-window-height; }
 }
