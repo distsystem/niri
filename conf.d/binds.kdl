@@ -100,11 +100,11 @@ binds {
     // SUPER+F -> toggle floating (Hypr: togglefloating)
     Mod+F { toggle-window-floating; }
 
-    // SUPER+SHIFT+F -> fullscreen (Hypr: fullscreen,1)
-    Mod+Shift+F { fullscreen-window; }
+    // SUPER+SHIFT+O -> fullscreen (Hypr: fullscreen,1)
+    Mod+Shift+O { fullscreen-window; }
 
-    // SUPER+Ctrl+F -> expand column to available width
-    Mod+Ctrl+F { expand-column-to-available-width; }
+    // SUPER+O -> expand column to available width (maximize)
+    Mod+O { expand-column-to-available-width; }
 
     // ===== Volume / Brightness / Media keys =====
     XF86AudioRaiseVolume allow-when-locked=true {
@@ -135,8 +135,8 @@ binds {
     XF86AudioPrev  { spawn "playerctl" "previous"; }
 
     // ===== niri-specific: Overview / Hotkey panel =====
-    // SUPER+O -> Overview
-    Mod+O repeat=false { toggle-overview; }
+    // SUPER+A -> Overview
+    Mod+A repeat=false { toggle-overview; }
 
     // SUPER+Shift+Slash -> show Important Hotkeys
     Mod+Shift+Slash { show-hotkey-overlay; }
