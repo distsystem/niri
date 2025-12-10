@@ -15,7 +15,7 @@
 
 # Path to folder containing wallpapers (must end in * to work properly!)
 # (expecting only images, there's no checking for invalid files)
-BG_FOLDER_PATH="$HOME/Pictures/Wallpapers/*"
+BG_FOLDER_PATH="$HOME/.wallpaper/*"
 
 # Read script flags
 FLAG_CYCLE=false
