@@ -29,11 +29,11 @@ binds {
     Mod+Ctrl+Shift+Q { quit; }
 
     // ===== Screenshot =====
-    // Print -> area screenshot + Satty (Hypr: $screenshot)
-    Print { spawn-sh "bash ~/.config/hypr/scripts/screenshot.sh"; }
+    // Print -> area screenshot + Satty
+    Print { spawn-sh "~/.config/niri/scripts/screenshot.sh"; }
 
     // SUPER+SHIFT+S -> same screenshot script
-    Mod+Shift+S { spawn-sh "bash ~/.config/hypr/scripts/screenshot.sh"; }
+    Mod+Shift+S { spawn-sh "~/.config/niri/scripts/screenshot.sh"; }
 
     Mod+I { spawn "wl-kbptr" "-o" "modes=floating,click" "-o" "mode_floating.source=detect"; }
     // ===== Focus movement (HJKL, like hypr-scroller) =====
