@@ -20,7 +20,9 @@ spawn-sh-at-startup "bash ~/.config/hypr/scripts/hyprland-cpu-monitor.sh"
 spawn-sh-at-startup "bash ~/.config/hypr/scripts/restart-input-leap.sh"
 
 // QT_SCALE_FACTOR=1 USE_LAYER_SHELL=0 vicinae server
-spawn-sh-at-startup "QT_SCALE_FACTOR=1 USE_LAYER_SHELL=0 vicinae server"
+spawn-sh-at-startup "QT_SCALE_FACTOR=1 vicinae server"
+spawn-sh-at-startup "GDK_SCALE=1 feishu"
+
 
 // localsend
 spawn-at-startup "localsend"

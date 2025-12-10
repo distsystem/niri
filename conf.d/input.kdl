@@ -16,7 +16,7 @@ input {
         tap
         dwt
 
-        // natural-scroll is disabled (Hypr: natural_scroll=false)
-        // natural-scroll
+        // enable natural scrolling
+        natural-scroll
     }
 }
