@@ -35,6 +35,7 @@ binds {
     // SUPER+SHIFT+S -> same screenshot script
     Mod+Shift+S { spawn-sh "bash ~/.config/hypr/scripts/screenshot.sh"; }
 
+    Mod+I { spawn "wl-kbptr" "-o" "modes=floating,click" "-o" "mode_floating.source=detect"; }
     // ===== Focus movement (HJKL, like hypr-scroller) =====
     Mod+H { focus-column-left; }
     Mod+L { focus-column-right; }
