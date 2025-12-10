@@ -28,4 +28,4 @@ spawn-sh-at-startup "GDK_SCALE=1 feishu"
 spawn-at-startup "localsend"
 
 // Auto-adjust window width based on workspace window count
-spawn-sh-at-startup "~/.config/niri/scripts/niri-auto-width.sh"
+spawn-at-startup "~/.config/niri/scripts/niri-auto-width.py"
