@@ -20,3 +20,10 @@ input {
         natural-scroll
     }
 }
+
+// Disable hot corners for overview
+gestures {
+    hot-corners {
+        off
+    }
+}
