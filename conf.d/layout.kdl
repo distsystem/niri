@@ -12,7 +12,7 @@ layout {
     }
 
     // Default window width: 50% of screen (auto-width script handles single window)
-    default-column-width { proportion 0.667; }
+    default-column-width { proportion 0.5; }
 
     focus-ring {
         width 3
@@ -35,5 +35,5 @@ layout {
     }
 
     // Center focused column: "never" | "always" | "on-overflow"
-    center-focused-column "always"
+    center-focused-column "never"
 }
