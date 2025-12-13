@@ -9,6 +9,7 @@ binds {
     // SUPER+E -> neovide
     Mod+E { spawn "neovide"; }
 
+    Mod+space { spawn "fcitx5-remote" "-t"; }
     // SUPER+V -> caelestia clipboard (Hypr: $clipboard)
     Mod+V { spawn "caelestia" "clipboard"; }
 
@@ -21,6 +22,8 @@ binds {
     // SUPER+CTRL+SHIFT+L -> lock screen (Hypr: hyprlock)
     Mod+Ctrl+Shift+L { spawn "hyprlock"; }
 
+    // wvkbd virtual keyboard toggle
+    Mod+Ctrl+O { spawn-sh "~/.config/niri/scripts/wvkbd_toggle.sh"; }
     // ===== Close / Exit =====
     // SUPER+SHIFT+Q -> close window (Hypr: killactive)
     Mod+Shift+Q { close-window; }
