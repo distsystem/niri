@@ -23,7 +23,6 @@ default_N = 3
 default_delay_ms = 2500 if perf_counter() < 60 else 0
 default_maximize_solos = True
 default_maximize_solo_on_close = True
-default_collapse_solos_on_open = True
 default_apply_on_move = False
 default_debug_names = False
 default_debug_data = False
@@ -55,11 +54,6 @@ parser.add_argument(
     help=f"When closing windows, if one window remains, auto-maximize it (default: {default_maximize_solo_on_close})",
 )
 parser.add_argument(
-    "-c",
-    action="store_false" if default_collapse_solos_on_open else "store_true",
-    help=f"Collapse solo maximized window when opening a second window (default: {default_collapse_solos_on_open})",
-)
-parser.add_argument(
     "-m",
     action="store_false" if default_apply_on_move else "store_true",
     help=f"Apply tiling logic to windows that are moved into other workspaces (default: {default_apply_on_move})",
@@ -81,7 +75,6 @@ TILE_TO_N = args.n
 STARTUP_DELAY_MS = args.delay
 MAXIMIZE_SOLOS = args.x
 MAXIMIZE_SOLOS_ON_CLOSE = args.xc
-COLLAPSE_SOLOS_ON_OPEN = args.c
 APPLY_TO_MOVED_WINDOWS = args.m
 ENABLE_EVENT_NAME_DEBUG_PRINT = args.dn
 ENABLE_EVENT_DATA_DEBUG_PRINT = args.dd
@@ -263,11 +256,11 @@ def make_workspace_state_from_WorkspacesChanged(event_data: dict) -> dict[int, d
     return {info_dict["id"]: info_dict for info_dict in event_data["workspaces"]}
 
 
-def make_window_state_from_WindowsChanged(event_data: dict, workspace_state, output_width_lut: dict) -> dict[int, dict]:
+def make_window_state_from_WindowsChanged(event_data: dict) -> dict[int, dict]:
     state = {}
     for info_dict in event_data["windows"]:
         win_id = info_dict["id"]
-        win_aug_data = get_additional_window_data(info_dict, workspace_state, output_width_lut)
+        win_aug_data = get_additional_window_data(info_dict)
         info_dict.update(win_aug_data)
         state[win_id] = info_dict
     return state
@@ -279,78 +272,16 @@ def get_windows_by_conditions(window_state: dict[int, dict], **conditions) -> di
     return {winid: windata for winid, windata in window_state.items() if meets_conditions(windata)}
 
 
-def get_additional_window_data(
-    window_data: dict,
-    workspace_state: dict,
-    output_width_lut: dict,
-    max_width_threshold: float = 0.8,
-) -> dict:
-    """Helper used to generate addition windowing data (particularly 'is_maximized' flag)"""
-    # Set up augmentation data
+def get_additional_window_data(window_data: dict) -> dict:
+    """Helper used to generate additional windowing data (col/row indices)"""
     win_pos = window_data["layout"]["pos_in_scrolling_layout"]
     win_col, win_row = win_pos if win_pos is not None else (None, None)
-    augment_dict = {
-        "col_idx": win_col,
-        "row_idx": win_row,
-        "is_maximized": False,
-    }
-
-    # Try to figure out if window is maximized
-    win_wspace_id = window_data["workspace_id"]
-    win_output = workspace_state.get(win_wspace_id, {}).get("output", None)
-    output_width = output_width_lut.get(win_output, None)
-    if output_width is not None:
-        win_width = window_data["layout"]["window_size"][0]
-        augment_dict["is_maximized"] = (win_width / output_width) > max_width_threshold
-
-    return augment_dict
+    return {"col_idx": win_col, "row_idx": win_row}
 
 
-def toggle_window_maximization(target_window_id: int, focused_window_id: int):
-    """Helper used to toggle the maximization state of a window, without messing with current focused window"""
-
-    if target_window_id == focused_window_id:
-        niri_action.action("MaximizeColumn")
-    else:
-        niri_action.action("FocusWindow", id=target_window_id)
-        niri_action.action("MaximizeColumn")
-        niri_action.action("FocusWindow", id=focused_window_id)
-
-    return
-
-
-def maximize_window(window_state: dict, focus_state: FocusState, target_window_id: int) -> bool:
-    """
-    Helper used to maximize a window if it's not already maximized.
-    This function assumes window state includes 'is_maximized' flag!
-    Returns True if the window needed maximization, false otherwise
-    """
-
-    solo_win_data = window_state[target_window_id]
-    need_maximization = not solo_win_data["is_maximized"]
-    if need_maximization:
-        solo_id = solo_win_data["id"]
-        toggle_window_maximization(solo_id, focus_state.window_id)
-        win_state[solo_id]["is_maximized"] = True
-
-    return need_maximization
-
-
-def collapse_window(window_state: dict, focus_state: FocusState, target_window_id: int) -> bool:
-    """
-    Helperused to collapse a maximized window. This function assumes
-    that the window state includes 'is_maximized' flag!
-    Returns: True if window needed collapse, false otherwise
-    """
-
-    solo_win_data = window_state[target_window_id]
-    need_collapse = solo_win_data["is_maximized"]
-    if need_collapse:
-        solo_id = solo_win_data["id"]
-        toggle_window_maximization(solo_id, focus_state.window_id)
-        win_state[solo_id]["is_maximized"] = False
-
-    return need_collapse
+def set_window_width(window_id: int, proportion: float):
+    """Set window width via IPC"""
+    niri_action.action("SetWindowWidth", id=window_id, change={"SetProportion": proportion})
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -386,14 +317,6 @@ if actual_version != expected_version:
 
 # ---------------------------------------------------------------------------------------------------------------------
 # %% *** IPC listening loop ***
-
-# Get monitor into
-is_outputs_ok, outputs_resp = niri_reader.request("Outputs")
-if not is_outputs_ok:
-    print("Error requesting info about monitors", outputs_resp, sep="\n")
-    quit()
-output_full_info = {out_key: out_dict["logical"] for out_key, out_dict in outputs_resp["Outputs"].items()}
-output_width_lut = {out_key: out_info["width"] for out_key, out_info in output_full_info.items()}
 
 # Initialize state tracking
 prev_focus_state = FocusState()
@@ -453,7 +376,7 @@ try:
 
         elif evt_name == "WindowsChanged":
             # Replace existing window state
-            win_state = make_window_state_from_WindowsChanged(evt_data, wspace_state, output_width_lut)
+            win_state = make_window_state_from_WindowsChanged(evt_data)
             for item in win_state.values():
                 if item["is_focused"]:
                     focus_state.window_id = item["id"]
@@ -473,7 +396,7 @@ try:
                 focus_state.window_id = evt_win_id
 
             # Replace existing window state for the target window
-            win_aug_data = get_additional_window_data(evt_data["window"], wspace_state, output_width_lut)
+            win_aug_data = get_additional_window_data(evt_data["window"])
             win_state[evt_win_id] = {**evt_data["window"], **win_aug_data}
             need_check_rearrange = evt_is_new_window or (evt_is_moved_window and APPLY_TO_MOVED_WINDOWS)
             newest_window_data = win_state[evt_win_id] if need_check_rearrange else None
@@ -496,9 +419,8 @@ try:
             # Replace existing window layout data
             for evt_win_id, evt_new_layout in evt_data["changes"]:
                 win_state[evt_win_id]["layout"] = evt_new_layout
-                win_aug_data = get_additional_window_data(win_state[evt_win_id], wspace_state, output_width_lut)
+                win_aug_data = get_additional_window_data(win_state[evt_win_id])
                 win_state[evt_win_id].update(win_aug_data)
-            pass
 
         elif evt_name == "KeyboardLayoutsChanged":
             # Not doing anything with keyboard...
@@ -519,23 +441,20 @@ try:
         else:
             print("Unknown event:", evt_name)
 
-        # Handle max-on-close
+        # Handle width adjustment on close
         if closed_window_data is not None:
             if MAXIMIZE_SOLOS_ON_CLOSE:
                 curr_wspace_id = closed_window_data["workspace_id"]
                 curr_wins = get_windows_by_conditions(win_state, workspace_id=curr_wspace_id, is_floating=False)
                 if len(curr_wins) == 1:
                     solo_id = tuple(curr_wins.keys())[0]
-                    maximize_window(win_state, focus_state, solo_id)
-                pass
+                    set_window_width(solo_id, 1.0)
 
         # Handle window-creation behaviors
         if newest_window_data is not None:
 
-            # Ignore newly created maximized or floating windows
-            # -> Assume opened maximized windows are done by user window rules (don't want to interfere)
-            # -> Tiling logic shouldn't apply to floating windows
-            if newest_window_data["is_maximized"] or newest_window_data["is_floating"]:
+            # Tiling logic shouldn't apply to floating windows
+            if newest_window_data["is_floating"]:
                 continue
 
             # Don't bother trying to re-arrange/tile if we already have more than 'N' windows
@@ -545,27 +464,21 @@ try:
             if num_tile_wins == 0 or num_tile_wins > TILE_TO_N:
                 continue
 
-            # Auto-maximize solo windows, if needed
+            # 1 window: set to 100%
             if MAXIMIZE_SOLOS and num_tile_wins == 1:
                 solo_id = tuple(curr_tile_wins.keys())[0]
-                maximize_window(win_state, focus_state, solo_id)
+                set_window_width(solo_id, 1.0)
 
-            # Collapse maximized windows, if needed
-            curr_max_wins: dict = get_windows_by_conditions(curr_tile_wins, is_maximized=True)
-            num_max_wins = len(curr_max_wins)
-            if COLLAPSE_SOLOS_ON_OPEN and num_max_wins == 1 and num_tile_wins == 2:
-                solo_max_id = tuple(curr_max_wins.keys())[0]
-                collapse_window(win_state, focus_state, solo_max_id)
-                num_max_wins -= 1
+            # 2 windows: set both to 50%
+            elif num_tile_wins == 2:
+                for win_id in curr_tile_wins.keys():
+                    set_window_width(win_id, 0.5)
 
-            # Apply tiling if needed
-            is_zero_max_windows = num_max_wins == 0
-            if is_zero_max_windows and (2 < num_tile_wins <= TILE_TO_N):
+            # 3+ windows: use consume to stack in columns
+            elif 2 < num_tile_wins <= TILE_TO_N:
                 is_new_win_onscreen = newest_window_data["col_idx"] == 2
                 consume_action = "ConsumeOrExpelWindowRight" if is_new_win_onscreen else "ConsumeOrExpelWindowLeft"
                 niri_action.action(consume_action, id=newest_window_data["id"])
-
-            pass
 
 except (KeyboardInterrupt, InterruptedError):
     pass
