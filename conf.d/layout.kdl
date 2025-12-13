@@ -35,5 +35,5 @@ layout {
     }
 
     // Center focused column: "never" | "always" | "on-overflow"
-    center-focused-column "never"
+    center-focused-column "on-overflow"
 }
