@@ -10,6 +10,7 @@ import json
 import os
 import signal
 import argparse
+import subprocess
 from dataclasses import dataclass
 from time import perf_counter, sleep
 from collections import deque
@@ -279,9 +280,17 @@ def get_additional_window_data(window_data: dict) -> dict:
     return {"col_idx": win_col, "row_idx": win_row}
 
 
-def set_window_width(window_id: int, proportion: float):
-    """Set window width via IPC"""
-    niri_action.action("SetWindowWidth", id=window_id, change={"SetProportion": proportion})
+def set_window_width(window_id: int, width: str):
+    """Set window width via CLI (IPC has regression in niri 25.11)"""
+    subprocess.run(["niri", "msg", "action", "set-window-width", "--id", str(window_id), width])
+
+
+def niri_action_cli(action: str, window_id: int | None = None):
+    """Execute niri action via CLI"""
+    cmd = ["niri", "msg", "action", action]
+    if window_id is not None:
+        cmd.extend(["--id", str(window_id)])
+    subprocess.run(cmd)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -297,9 +306,8 @@ if skt_path is None or skt_path == "":
     print("Couldn't find niri socket! (from env: NIRI_SOCKET)")
     quit()
 
-# Create separate read/write sockets, since eventstream reader cannot issue actions
+# Create socket for reading events (actions use CLI due to IPC regression)
 niri_reader = NiriRequests(skt_path)
-niri_action = NiriActions(skt_path)
 
 # Sanity check. Make sure we have the right version
 is_version_ok, version_resp = niri_reader.request("Version")
@@ -448,7 +456,7 @@ try:
                 curr_wins = get_windows_by_conditions(win_state, workspace_id=curr_wspace_id, is_floating=False)
                 if len(curr_wins) == 1:
                     solo_id = tuple(curr_wins.keys())[0]
-                    set_window_width(solo_id, 1.0)
+                    set_window_width(solo_id, "100%")
 
         # Handle window-creation behaviors
         if newest_window_data is not None:
@@ -467,23 +475,22 @@ try:
             # 1 window: set to 100%
             if MAXIMIZE_SOLOS and num_tile_wins == 1:
                 solo_id = tuple(curr_tile_wins.keys())[0]
-                set_window_width(solo_id, 1.0)
+                set_window_width(solo_id, "100%")
 
             # 2 windows: set both to 50%
             elif num_tile_wins == 2:
                 for win_id in curr_tile_wins.keys():
-                    set_window_width(win_id, 0.5)
+                    set_window_width(win_id, "50%")
 
             # 3+ windows: use consume to stack in columns
             elif 2 < num_tile_wins <= TILE_TO_N:
                 is_new_win_onscreen = newest_window_data["col_idx"] == 2
-                consume_action = "ConsumeOrExpelWindowRight" if is_new_win_onscreen else "ConsumeOrExpelWindowLeft"
-                niri_action.action(consume_action, id=newest_window_data["id"])
+                consume_action = "consume-or-expel-window-right" if is_new_win_onscreen else "consume-or-expel-window-left"
+                niri_action_cli(consume_action, newest_window_data["id"])
 
 except (KeyboardInterrupt, InterruptedError):
     pass
 
 finally:
-    niri_action.close()
     niri_reader.close()
     print("", f"({os.path.basename(__file__)}) - Closed niri IPC connection", sep="\n")
