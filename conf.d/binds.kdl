@@ -154,7 +154,4 @@ binds {
     Mod+X { switch-preset-column-width; }
     Mod+Shift+X { switch-preset-window-height; }
 
-    // ===== Wallpaper =====
-    // SUPER+SHIFT+W -> cycle wallpaper (W=Wallpaper)
-    Mod+Shift+W { spawn "bash" "~/.config/niri/scripts/swaybg_helper.sh" "--cycle" "-d"; }
 }

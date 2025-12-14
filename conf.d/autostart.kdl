@@ -26,3 +26,4 @@ spawn-at-startup "~/.config/niri/scripts/niri_tile_to_n.py" "-n" "3"
 // wvkbd virtual keyboard (start hidden, use wvkbd_toggle.sh to show)
 spawn-at-startup "wvkbd-mobintl" "--hidden"
 spawn-at-startup "swww-daemon"
+spawn-at-startup "~/.config/niri/scripts/wallpaper_per_workspace.py"
