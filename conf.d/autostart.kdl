@@ -15,7 +15,6 @@ spawn-sh-at-startup "bash ~/.config/niri/scripts/autostart.sh"
 
 // QT_SCALE_FACTOR=1 USE_LAYER_SHELL=0 vicinae server
 spawn-sh-at-startup "QT_SCALE_FACTOR=1 vicinae server"
-spawn-sh-at-startup "feishu"
 
 // localsend
 spawn-at-startup "localsend"
@@ -27,3 +26,6 @@ spawn-at-startup "~/.config/niri/scripts/niri_tile_to_n.py" "-n" "3"
 spawn-at-startup "wvkbd-mobintl" "--hidden"
 spawn-at-startup "swww-daemon"
 spawn-at-startup "~/.config/niri/scripts/wallpaper_per_workspace.py"
+
+// CPU monitor (notify when any process exceeds 100%)
+spawn-at-startup "~/.config/niri/scripts/cpu-monitor.sh"
