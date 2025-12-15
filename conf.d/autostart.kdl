@@ -19,13 +19,11 @@ spawn-sh-at-startup "QT_SCALE_FACTOR=1 vicinae server"
 // localsend
 spawn-at-startup "localsend"
 
-// Auto-tiling for <= N windows
-spawn-at-startup "~/.config/niri/scripts/niri_tile_to_n.py" "-n" "3"
+spawn-at-startup "~/.config/niri/scripts/handlers.py"
 
 // wvkbd virtual keyboard (start hidden, use wvkbd_toggle.sh to show)
 spawn-at-startup "wvkbd-mobintl" "--hidden"
 spawn-at-startup "swww-daemon"
-spawn-at-startup "~/.config/niri/scripts/wallpaper_per_workspace.py"
 
 // CPU monitor (notify when any process exceeds 100%)
 // spawn-at-startup "~/.config/niri/scripts/cpu-monitor.sh"
