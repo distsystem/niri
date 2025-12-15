@@ -1,0 +1,14 @@
+[workspace]
+authors = ["fecet <xiezej@gmail.com>"]
+channels = ["https://repo.prefix.dev/meta-forge", "conda-forge"]
+name = "niri"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "*"
+
+[pypi-dependencies]
+niri = { path = ".", editable = true }
