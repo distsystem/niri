@@ -5,13 +5,10 @@ build-backend = "hatchling.build"
 [project]
 name = "niri"
 version = "0.1.0"
-description = "Niri Socket Library"
+description = "Niri IPC client library"
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = ["pydantic>=2.0"]
-
-[project.scripts]
-niri = "niri.cli:main"
+requires-python = ">=3.12"
+dependencies = []
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/niri"]
