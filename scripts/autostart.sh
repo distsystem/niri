@@ -22,7 +22,7 @@ clash-verge &
 # swww-daemon &
 QT_SCALE_FACTOR=1 copyq --start-server &
 sleep 2
-GDK_SCALE=2 feishu &
+feishu &
 
 # Keep script alive - wait for any non-daemonizing child process
 wait

@@ -19,7 +19,7 @@ spawn-sh-at-startup "QT_SCALE_FACTOR=1 vicinae server"
 // localsend
 spawn-at-startup "localsend"
 
-spawn-at-startup "~/.config/niri/scripts/handlers.py"
+spawn-sh-at-startup "cd ~/.config/niri && pixi run python scripts/handlers.py"
 
 // wvkbd virtual keyboard (start hidden, use wvkbd_toggle.sh to show)
 spawn-at-startup "wvkbd-mobintl" "--hidden"

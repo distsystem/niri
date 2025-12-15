@@ -14,7 +14,8 @@ binds {
     Mod+V { spawn "caelestia" "clipboard"; }
 
     // ALT+Space -> walker -t hypr (Hypr: $menu)
-    Alt+space { spawn "vicinae" "toggle"; }
+    // Alt+space { spawn "vicinae" "toggle"; }
+    Alt+space { spawn "fuzzel"; }
 
     // SUPER+C -> browser (Hypr: gtk-launch google-chrome)
     Mod+C { spawn "gtk-launch" "google-chrome"; }

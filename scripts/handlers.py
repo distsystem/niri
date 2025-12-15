@@ -1,4 +1,4 @@
-#!/usr/bin/env -S pixi run --manifest-path ${HOME}/.config/niri/pixi.toml python
+#!/usr/bin/env python
 """Test script demonstrating niri IPC with multiple handlers."""
 
 import random
