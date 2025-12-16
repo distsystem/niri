@@ -7,11 +7,11 @@ import subprocess
 import threading
 from pathlib import Path
 
-from niri import NiriRequests
+from niri import NiriRequests, logger
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(message)s",
+    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
     datefmt="%H:%M:%S",
 )
 
@@ -34,7 +34,7 @@ class TileManager:
 
     def _set_width(self, wid: int, percent: float) -> None:
         ok, resp = self._action("SetWindowWidth", id=wid, change={"SetProportion": percent})
-        logging.debug("SetWindowWidth wid=%d pct=%.0f%% -> ok=%s resp=%s", wid, percent, ok, resp)
+        logger.debug("SetWindowWidth wid=%d pct=%.0f%% -> ok=%s resp=%s", wid, percent, ok, resp)
 
     def _get_tiled_windows(self, workspace_id: int) -> dict[int, dict]:
         return {
@@ -60,7 +60,7 @@ class TileManager:
                 is_new = wid not in self.win_state
                 self.win_state[wid] = win
 
-                logging.debug(
+                logger.debug(
                     "WindowOpenedOrChanged wid=%d is_new=%s floating=%s app=%s",
                     wid, is_new, win["is_floating"], win.get("app_id"),
                 )
@@ -70,34 +70,34 @@ class TileManager:
 
                 tiled = self._get_tiled_windows(win["workspace_id"])
                 count = len(tiled)
-                logging.info("New tiled window wid=%d, total tiled=%d", wid, count)
+                logger.info("New tiled window wid=%d, total tiled=%d", wid, count)
 
                 if count == 1 and self.maximize_solos:
-                    logging.info("Solo window -> 100%%")
+                    logger.info("Solo window -> 100%%")
                     self._set_width(wid, 100)
                 elif count == 2:
-                    logging.info("Two windows -> 50%% each")
+                    logger.info("Two windows -> 50%% each")
                     for w in tiled:
                         self._set_width(w, 50)
                 elif 2 < count <= self.n:
                     col = self._get_col_idx(win)
                     action = "ConsumeOrExpelWindowRight" if col == 2 else "ConsumeOrExpelWindowLeft"
-                    logging.info("Consume/expel col=%s action=%s", col, action)
+                    logger.info("Consume/expel col=%s action=%s", col, action)
                     ok, resp = self._action(action, id=wid)
-                    logging.debug("ConsumeOrExpel -> ok=%s resp=%s", ok, resp)
+                    logger.debug("ConsumeOrExpel -> ok=%s resp=%s", ok, resp)
 
             case "WindowClosed":
                 wid = data["id"]
                 closed = self.win_state.pop(wid, None)
-                logging.debug("WindowClosed wid=%d found=%s", wid, closed is not None)
+                logger.debug("WindowClosed wid=%d found=%s", wid, closed is not None)
                 if not closed:
                     return
 
                 tiled = self._get_tiled_windows(closed["workspace_id"])
-                logging.debug("After close: tiled=%d", len(tiled))
+                logger.debug("After close: tiled=%d", len(tiled))
                 if len(tiled) == 1 and self.maximize_solos:
                     remaining = next(iter(tiled))
-                    logging.info("One remaining -> 100%% wid=%d", remaining)
+                    logger.info("One remaining -> 100%% wid=%d", remaining)
                     self._set_width(remaining, 100)
 
             case "WindowLayoutsChanged":
@@ -198,7 +198,7 @@ if __name__ == "__main__":
     if wallpapers_dir.is_dir():
         handlers.append(WallpaperManager(wallpapers_dir))
 
-    logging.info("Starting handlers: %s", [type(h).__name__ for h in handlers])
+    logger.info("Starting handlers: %s", [type(h).__name__ for h in handlers])
     with NiriRequests.connect() as conn:
-        logging.info("Connected, subscribing to events...")
+        logger.info("Connected, subscribing to events...")
         conn.subscribe(*handlers)
