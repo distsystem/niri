@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-"""Test script demonstrating niri IPC with multiple handlers."""
-
 import logging
 import random
 import subprocess
@@ -8,6 +6,7 @@ import threading
 from pathlib import Path
 
 from niri import NiriRequests, logger
+from niri.ipc import EventHandler
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -15,7 +14,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"}
+IMAGE_EXTENSIONS = frozenset({".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"})
 
 
 class TileManager:
@@ -33,8 +32,7 @@ class TileManager:
             return conn.action(action_name, **params)
 
     def _set_width(self, wid: int, percent: float) -> None:
-        ok, resp = self._action("SetWindowWidth", id=wid, change={"SetProportion": percent})
-        logger.debug("SetWindowWidth wid=%d pct=%.0f%% -> ok=%s resp=%s", wid, percent, ok, resp)
+        self._action("SetWindowWidth", id=wid, change={"SetProportion": percent})
 
     def _get_tiled_windows(self, workspace_id: int) -> dict[int, dict]:
         return {
@@ -83,8 +81,7 @@ class TileManager:
                     col = self._get_col_idx(win)
                     action = "ConsumeOrExpelWindowRight" if col == 2 else "ConsumeOrExpelWindowLeft"
                     logger.info("Consume/expel col=%s action=%s", col, action)
-                    ok, resp = self._action(action, id=wid)
-                    logger.debug("ConsumeOrExpel -> ok=%s resp=%s", ok, resp)
+                    self._action(action, id=wid)
 
             case "WindowClosed":
                 wid = data["id"]
@@ -145,8 +142,7 @@ class WallpaperManager:
 
     def _rotate(self) -> None:
         with self.lock:
-            shuffled = self.all_wallpapers.copy()
-            random.shuffle(shuffled)
+            shuffled = random.sample(self.all_wallpapers, len(self.all_wallpapers))
             for i, ws_id in enumerate(self.workspace_outputs):
                 self.workspace_wallpapers[ws_id] = shuffled[i % len(shuffled)]
             ws_ids = list(self.workspace_outputs.keys())
@@ -194,7 +190,7 @@ class WallpaperManager:
 if __name__ == "__main__":
     wallpapers_dir = Path.home() / ".wallpaper"
     tile_manager = TileManager(n=3)
-    handlers: list = [tile_manager]
+    handlers: list[EventHandler] = [tile_manager]
     if wallpapers_dir.is_dir():
         handlers.append(WallpaperManager(wallpapers_dir))
 
