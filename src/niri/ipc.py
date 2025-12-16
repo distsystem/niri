@@ -1,12 +1,13 @@
-"""Niri IPC socket communication."""
-
 import json
+import logging
 import os
 import socket
 from collections import deque
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from typing import Literal
+
+logger = logging.getLogger(__name__)
 
 type EventName = Literal[
     "WorkspacesChanged",
@@ -105,7 +106,9 @@ class NiriRequests(NiriSocket):
         self._send_json({"Action": action_obj})
         resp = self._read_next()
         is_ok = "Ok" in resp
-        return is_ok, resp.get("Ok" if is_ok else "Err", {})
+        result = resp.get("Ok" if is_ok else "Err", {})
+        logger.debug("action %s params=%s -> ok=%s", action_name, params, is_ok)
+        return is_ok, result
 
     def read_eventstream(self) -> Iterator[tuple[str, dict]]:
         is_ok, resp = self.request("EventStream")
