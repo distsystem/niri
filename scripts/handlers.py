@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 """Test script demonstrating niri IPC with multiple handlers."""
 
+import logging
 import random
 import subprocess
 import threading
 from pathlib import Path
 
-from niri import NiriRequests, cli
+from niri import NiriRequests
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S",
+)
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"}
 
@@ -19,6 +26,15 @@ class TileManager:
         self.maximize_solos = maximize_solos
         self.win_state: dict[int, dict] = {}
         self.wspace_state: dict[int, dict] = {}
+
+    def _action(self, action_name: str, **params) -> tuple[bool, dict]:
+        """Send action via separate connection (event stream blocks responses)."""
+        with NiriRequests.connect() as conn:
+            return conn.action(action_name, **params)
+
+    def _set_width(self, wid: int, percent: float) -> None:
+        ok, resp = self._action("SetWindowWidth", id=wid, change={"SetProportion": percent})
+        logging.debug("SetWindowWidth wid=%d pct=%.0f%% -> ok=%s resp=%s", wid, percent, ok, resp)
 
     def _get_tiled_windows(self, workspace_id: int) -> dict[int, dict]:
         return {
@@ -44,31 +60,45 @@ class TileManager:
                 is_new = wid not in self.win_state
                 self.win_state[wid] = win
 
+                logging.debug(
+                    "WindowOpenedOrChanged wid=%d is_new=%s floating=%s app=%s",
+                    wid, is_new, win["is_floating"], win.get("app_id"),
+                )
+
                 if not is_new or win["is_floating"]:
                     return
 
                 tiled = self._get_tiled_windows(win["workspace_id"])
                 count = len(tiled)
+                logging.info("New tiled window wid=%d, total tiled=%d", wid, count)
 
                 if count == 1 and self.maximize_solos:
-                    cli.set_window_width(wid, "100%")
+                    logging.info("Solo window -> 100%%")
+                    self._set_width(wid, 100)
                 elif count == 2:
+                    logging.info("Two windows -> 50%% each")
                     for w in tiled:
-                        cli.set_window_width(w, "50%")
+                        self._set_width(w, 50)
                 elif 2 < count <= self.n:
                     col = self._get_col_idx(win)
-                    action = "consume-or-expel-window-right" if col == 2 else "consume-or-expel-window-left"
-                    cli.action(action, wid)
+                    action = "ConsumeOrExpelWindowRight" if col == 2 else "ConsumeOrExpelWindowLeft"
+                    logging.info("Consume/expel col=%s action=%s", col, action)
+                    ok, resp = self._action(action, id=wid)
+                    logging.debug("ConsumeOrExpel -> ok=%s resp=%s", ok, resp)
 
             case "WindowClosed":
                 wid = data["id"]
                 closed = self.win_state.pop(wid, None)
+                logging.debug("WindowClosed wid=%d found=%s", wid, closed is not None)
                 if not closed:
                     return
 
                 tiled = self._get_tiled_windows(closed["workspace_id"])
+                logging.debug("After close: tiled=%d", len(tiled))
                 if len(tiled) == 1 and self.maximize_solos:
-                    cli.set_window_width(next(iter(tiled)), "100%")
+                    remaining = next(iter(tiled))
+                    logging.info("One remaining -> 100%% wid=%d", remaining)
+                    self._set_width(remaining, 100)
 
             case "WindowLayoutsChanged":
                 for wid, layout in data["changes"]:
@@ -163,9 +193,12 @@ class WallpaperManager:
 
 if __name__ == "__main__":
     wallpapers_dir = Path.home() / ".wallpaper"
-    handlers = [TileManager(n=3)]
+    tile_manager = TileManager(n=3)
+    handlers: list = [tile_manager]
     if wallpapers_dir.is_dir():
         handlers.append(WallpaperManager(wallpapers_dir))
 
+    logging.info("Starting handlers: %s", [type(h).__name__ for h in handlers])
     with NiriRequests.connect() as conn:
+        logging.info("Connected, subscribing to events...")
         conn.subscribe(*handlers)
